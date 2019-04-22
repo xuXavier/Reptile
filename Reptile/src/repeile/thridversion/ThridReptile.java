@@ -32,6 +32,11 @@ import org.jsoup.nodes.Element;
  */
 public class ThridReptile {
 
+	//表示每个网页中文本保存名
+	private static int txtNum=1;
+	private static int htmlNum=1;
+	private static int txtAll=1;
+    private static UrlResult result=new UrlResult();
 	/**
 	* 
 	* @Title: saveHtml
@@ -41,11 +46,15 @@ public class ThridReptile {
 	* @author Xavier Xu 
 	* @throws
 	*/
-    public static void saveHtml(String url) {
+    public static void saveHtml(String url,UrlResult ur) {
+
+        for(int i=1;i<=1;i++) {
+       
         try {
-        	if()
+        
             // 这是将首页的信息存入到一个html文件中 为了后面分析html文件里面的信息做铺垫
-            File dest = new File("src/temp/reptile.html");
+            File dest = new File("src/temp/reptile"+htmlNum+".html");
+            htmlNum++;
             // 接收字节输入流
             InputStream is;
             // 字节输出流
@@ -78,8 +87,12 @@ public class ThridReptile {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        
+        }
+       
         }
     }
+    
     /**
 	 * 
 	 * @Title: getLocalHtml
@@ -100,41 +113,51 @@ public class ThridReptile {
             int tmp=1;
             // 循环解析所有的html文件
             try {
+            	System.out.println(files.length);
                 for (int i = 0; i < files.length; i++) {
-
+                	System.out.println("测试");
                     // 首先先判断是不是文件
                     if (files[i].isFile()) {
+                    	System.out.println("测试2");
                         // 获取文件名
                         String filename = files[i].getName();
                         // 开始解析文件
-
+                        System.out.println(filename);
                         Document doc = Jsoup.parse(files[i], "UTF-8");
-                        // 获取所有内容 获取新闻内容
-                        org.jsoup.select.Elements contents =  doc.getElementsByTag("img");
+                        // 获取所有内容 
+                        org.jsoup.select.Elements contents =  doc.getElementsByClass("ConsTi");
+                       
                         for (Element element : contents) {
                             org.jsoup.select.Elements e1 = element.getElementsByTag("a");
                             for (Element element2 : e1) {
+                            	 System.out.println("测试3");
                                 // System.out.print(element2.attr("href"));
-                                // 根据href获取新闻的详情信息
-                                String newText = desGetUrl(element2.attr("href"));
-                                // 获取新闻的标题
-                                String newTitle = element2.text();                                                      
-                                exportFile(newTitle, newText);
+                                // 根据href获取内容
+                              //  String newText = desGetUrl(element2.attr("href"));//没必要获得一个新链接
+                                // 获取内容的标题
+                                String newTitle = element2.text();  
+                         
+                                exportFile(newTitle, "");
                                 System.out.println("抓取成功。。。"+(tmp));
                                 tmp++;
                                 
                             }
                         }
                     }
-
+                    txtNum++;
+                    System.out.println("测试成功");
                 }
-                
+                if(txtAll==1000) {
+                	return;
+                }
+                txtAll++;
                 //excelExport(news, response, request);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
+        
 
     	/**
     	 * 
@@ -149,6 +172,7 @@ public class ThridReptile {
         public static String desGetUrl(String url) {
             String newText="";
             try {
+            	if(url!=null) {
                 Document doc = Jsoup
                         .connect(url)
                         .userAgent(
@@ -162,6 +186,7 @@ public class ThridReptile {
                     Element content = contents.get(0);
                     newText = content.text();
                 }
+            	}
                 //System.out.println(content);
                 //return newText;
             } catch (IOException e) {
@@ -173,7 +198,7 @@ public class ThridReptile {
         /**
     	 * 
     	 * @Title: exportFile
-    	 * @Description: 将新闻标题和内容写入txt文件中
+    	 * @Description: 将文字内容写入txt文件中
     	 * @param @param title
     	 * @param @param content    
     	 * @return void   
@@ -183,7 +208,7 @@ public class ThridReptile {
         public static void exportFile(String title,String content){
             
             try {
-                File file = new File("D:/replite/xinwen.txt");
+                File file = new File("D:/replite/xinwen"+txtNum +".txt");
                 
                 if (!file.getParentFile().exists()) {//判断路径是否存在，如果不存在，则创建上一级目录文件夹
                     file.getParentFile().mkdirs();
@@ -303,10 +328,6 @@ public class ThridReptile {
             File[] files = file.listFiles();
             System.out.println("测试");
             List<New> news = new ArrayList<New>();
-            //保存所有网站的链接地址
-            UrlResult result=new UrlResult();
-            //设置当前访问网站作为所有将要爬的链接网站的起始网站
-            result.setUrl(cururl);
             int tmp=1;
             // 循环解析所有的html文件
             try {
@@ -336,23 +357,54 @@ public class ThridReptile {
                     }
 
                 }
-                //不断爬 爬两次
                 
+                //不断爬 爬两次
+               
+                System.out.println("成功");
                 //excelExport(news, response, request);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
+        /**
+         * 
+         * @Title: getFirstInter
+         * @Description: 首次爬取页面
+         * @param     
+         * @return void   
+         * @author Xavier Xu 
+         * @throws
+         */
+        public static void getFirstInter() {
+        	String url="http://news.sina.com.cn/hotnews/?q_kkhha";
+        	String htmlPath="src/temp";
+        	//首次爬取网页
+        	UrlResult ur=new UrlResult();
+        	ur.setUrl(url);
+        	ur.list.add(url);
+        	saveHtml(url,ur);
+            getLocalHtml(htmlPath);   
+            getImage(htmlPath);
+            getUrl(htmlPath,url);
+            //不断爬取网页
+            System.out.println(result.list.size());
+            for(int i=0;i<result.list.size();i++) {
+            	saveHtml(result.list.get(i),result);
+                getLocalHtml(htmlPath);   
+                getImage(htmlPath);
+            }
+        }
         public static void main(String[] args) {
-            String url = "https://cs.58.com/";  
+            String url = "http://news.sina.com.cn/hotnews/?q_kkhha";  
             String htmlPath ="src/temp" ;  //html保存地址
-//          saveHtml(url);
+            getFirstInter();
+//             saveHtml(url);
             // 解析本地html文件
 //            getLocalHtml("src/temp");     
 //            getImage(htmlPath);
-            getUrl(htmlPath,url);
-            result
+//            getUrl(htmlPath,url);
+            
         }
     }
 	

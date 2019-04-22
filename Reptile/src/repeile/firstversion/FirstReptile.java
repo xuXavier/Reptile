@@ -99,13 +99,17 @@ public class FirstReptile {
 
 					Document doc = Jsoup.parse(files[i], "UTF-8");
 					// 获取所有内容 获取新闻内容
-					org.jsoup.select.Elements contents = doc.getElementsByTag("img");
+					org.jsoup.select.Elements contents = doc.getElementsByClass("ConsTi");
+					System.out.println(contents.size());
 					for (Element element : contents) {
 						org.jsoup.select.Elements e1 = element.getElementsByTag("a");
+						System.out.println(e1.size());
 						for (Element element2 : e1) {
 							// System.out.print(element2.attr("href"));
+							System.out.println("测试");
 							// 根据href获取新闻的详情信息
 							String newText = desGetUrl(element2.attr("href"));
+							System.out.println("测试");
 							// 获取新闻的标题
 							String newTitle = element2.text();
 							exportFile(newTitle, newText);
@@ -277,11 +281,11 @@ public class FirstReptile {
 	}
 
 	public static void main(String[] args) {
-		String url = "https://cd.lianjia.com/";
+		String url = "http://news.sina.com.cn/hotnews/?q_kkhha";
 		String htmlPath = "src/temp"; // html保存地址
-		saveHtml(url);
+	  // saveHtml(url);
 		// 解析本地html文件
-//            getLocalHtml("src/temp");     
+          getLocalHtml("src/temp");     
 		//getImage(htmlPath);
 	}
 }
